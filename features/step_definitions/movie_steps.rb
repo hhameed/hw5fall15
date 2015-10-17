@@ -52,11 +52,7 @@ Given /the following movies have been added to RottenPotatoes:/ do |movies_table
 end
 
 When /^I have opted to see movies rated: "(.*?)"$/ do |arg1|
-  uncheck('ratings_G')
-  uncheck('ratings_PG')
-  uncheck('ratings_PG-13')
-  uncheck('ratings_R')
-  uncheck('ratings_NC-17')
+  all('input[type="checkbox"]').each {|ch| uncheck(ch[:id]) }
   arg1.split(', ').each do |rating|
     check('ratings_'+rating)
   end
@@ -69,15 +65,14 @@ Then /^I should see only movies rated: "(.*?)"$/ do |arg1|
   all("tbody tr").each do |tr|
     txt = tr.all('td')[1].text
     result &&= ratings.include?(txt)
-    puts txt + "\n"
   end
-  result &&= Movie.where(:rating=>ratings).count() == all("tbody tr").count
   expect(result).to be_truthy
+  expect(all("tbody tr").count).to eq(Movie.where(:rating=>ratings).count())
 end
 
 Then /^I should see all of the movies$/ do
-  result = all("tbody tr").count == 10
-  expect(result).to be_truthy
+  result = all("tbody tr").count
+  expect(result).to eq(10)
 end
 
 
@@ -87,7 +82,6 @@ When /^I have opted to sort movies by: "(.*?)"$/ do |arg1|
   all("tbody tr").each do |tr|
     txt = tr.all('td')[0].text
     result &&= ratings.include?(txt)
-    puts txt + "\n"
   end
 end
 
